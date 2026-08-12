@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Protector</title>
+<style>
+:root{--blue:#0b3c91;--blue2:#1769d2;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#64748b;--green:#16835b;--red:#d93636;--border:#dbe3ef}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;padding:24px 18px;border-radius:0 0 24px 24px}
+header h1{margin:0;font-size:30px} header p{margin:7px 0 0;opacity:.92}
+nav{display:flex;gap:8px;overflow:auto;padding:12px;background:white;position:sticky;top:0;z-index:5;border-bottom:1px solid var(--border)}
+nav button{border:0;background:#eef4ff;color:var(--blue);padding:10px 14px;border-radius:20px;font-weight:bold;white-space:nowrap}
+main{max-width:900px;margin:auto;padding:16px}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 4px 16px #183b5d0b}
+h2{margin-top:0}.muted{color:var(--muted);font-size:14px}.notice{background:#fff7df;border-left:5px solid #e0a100;padding:12px;border-radius:10px;font-size:14px}
+textarea,input{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:12px;font-size:16px;margin:8px 0}
+.btn{background:var(--blue);color:white;border:0;border-radius:12px;padding:13px 16px;font-weight:bold;cursor:pointer}.btn.secondary{background:#e8f0ff;color:var(--blue)}.btn.green{background:var(--green)}.btn.red{background:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid #cbd5e1;background:white;border-radius:18px;padding:9px 12px;cursor:pointer}.chip.active{background:#e8f0ff;border-color:var(--blue);color:var(--blue)}
+.result{padding:14px;border-radius:14px;background:#f7faff;border:1px solid #dce8fb;margin-top:12px}.result h3{margin:0 0 7px}.urgent{background:#fff0f0;border-color:#f3b4b4}.ok{background:#eefaf5;border-color:#b9e5d1}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.feature{padding:16px;border:1px solid var(--border);border-radius:15px;background:white}
+a.btnlink{display:inline-block;text-decoration:none;margin-top:10px}.small{font-size:12px;color:var(--muted)}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>🛡️ HEALTH PROTECTOR</h1>
+  <p>Your Health Protector • आपका स्वास्थ्य रक्षक</p>
+</header>
+
+<nav>
+  <button onclick="show('home')">Home</button>
+  <button onclick="show('symptoms')">Check Symptoms</button>
+  <button onclick="show('doctors')">Find Doctors</button>
+  <button onclick="show('meds')">Medicines</button>
+  <button onclick="show('sos')">Emergency</button>
+</nav>
+
+<main>
+<section id="home" class="page">
+  <div class="card">
+    <h2>How can we help?</h2>
+    <p>Enter symptoms in simple words and get general health information and the next useful questions to consider.</p>
+    <button class="btn" onclick="show('symptoms')">🩺 Check Symptoms</button>
+    <button class="btn secondary" onclick="show('doctors')">📍 Find Nearby Doctors</button>
+  </div>
+  <div class="feature-grid">
+    <div class="feature"><b>🩺 Symptom Checker</b><p class="muted">Describe symptoms and select common symptoms to improve the result.</p></div>
+    <div class="feature"><b>📍 Doctor Finder</b><p class="muted">Open a live map search for doctors, clinics and hospitals near your location.</p></div>
+    <div class="feature"><b>🚑 Safety Check</b><p class="muted">Highlights symptoms that may need urgent medical attention.</p></div>
+  </div>
+</section>
+
+<section id="symptoms" class="page hidden">
+  <div class="card">
+    <h2>🩺 Check Your Symptoms</h2>
+    <div class="notice"><b>Important:</b> This tool provides general health information. It cannot confirm a diagnosis. A doctor should make the diagnosis, especially when symptoms are severe, new, or worsening.</div>
+    <p><b>1. Describe what you feel</b></p>
+    <textarea id="freeText" rows="4" placeholder="Example: fever, headache, cough and tiredness..."></textarea>
+    <p><b>2. Select symptoms</b></p>
+    <div class="chips" id="chips"></div>
+    <button class="btn" onclick="analyze()">Analyze Symptoms</button>
+    <div id="result"></div>
+  </div>
+</section>
+
+<section id="doctors" class="page hidden">
+  <div class="card">
+    <h2>📍 Find Nearby Doctors</h2>
+    <p>Use your device's map service to see doctors and clinics near your current location. Their current opening hours are shown by the map provider when available.</p>
+    <button class="btn green" onclick="findDoctors()">Find Doctors Near Me</button>
+    <button class="btn secondary" onclick="findHospitals()">Find Hospitals Near Me</button>
+    <div id="locationStatus" class="result hidden"></div>
+    <p class="small">Location is requested by your browser. Health Protector does not store your location in this prototype.</p>
+  </div>
+</section>
+
+<section id="meds" class="page hidden">
+  <div class="card">
+    <h2>💊 Medicine Reminder</h2>
+    <p class="muted">Demo reminder only. It does not prescribe medicines.</p>
+    <input id="med" placeholder="Medicine name">
+    <input id="time" type="time">
+    <button class="btn" onclick="addMed()">Add Reminder</button>
+    <div id="medList"></div>
+  </div>
+</section>
+
+<section id="sos" class="page hidden">
+  <div class="card">
+    <h2>🚑 Emergency Safety Check</h2>
+    <div class="notice"><b>Get urgent medical help</b> if someone has severe trouble breathing, severe chest pressure/pain, sudden confusion, fainting, a seizure, or another rapidly worsening serious symptom.</div>
+    <button class="btn red" onclick="show('doctors');findHospitals()">Find Hospitals Near Me</button>
+  </div>
+</section>
+</main>
+
+<script>
+const symptoms=[
+"fever","cough","sore throat","runny nose","blocked nose","headache","body aches","tiredness",
+"nausea","vomiting","diarrhea","stomach pain","loss of appetite","rash","itching","dizziness",
+"shortness of breath","wheezing","chest pain","fast heartbeat","burning urination","frequent urination",
+"back pain","joint pain","eye redness","eye pain","yellow eyes","swelling","increased thirst",
+"frequent hunger","weight change","pale skin","night sweats","chills","constipation","heartburn"
+];
+const conditions=[
+{name:"Common cold",terms:["runny nose","blocked nose","sore throat","cough","headache"],need:2,more:"Ask about fever, how long symptoms have lasted, and whether breathing is normal."},
+{name:"Influenza-like illness",terms:["fever","cough","sore throat","body aches","tiredness","headache","chills"],need:3,more:"Ask about sudden onset, fever, body aches and whether symptoms are getting worse."},
+{name:"Dengue-like illness",terms:["fever","headache","body aches","joint pain","rash","nausea"],need:3,more:"Ask about recent mosquito exposure, bleeding symptoms and severe abdominal pain; a clinician may need testing."},
+{name:"Malaria-like illness",terms:["fever","chills","headache","body aches","nausea","tiredness"],need:3,more:"Ask about travel or mosquito exposure and recurring fever; testing is needed for diagnosis."},
+{name:"Typhoid-like illness",terms:["fever","headache","stomach pain","loss of appetite","tiredness","diarrhea","constipation"],need:3,more:"Ask how long fever has lasted and about food/water exposure; testing may be required."},
+{name:"Asthma-like symptoms",terms:["wheezing","shortness of breath","cough","chest pain"],need:2,more:"Ask whether symptoms are triggered by exercise, dust, pollen, cold air or occur at night."},
+{name:"Allergic rhinitis-like symptoms",terms:["runny nose","blocked nose","itching","eye redness","cough"],need:2,more:"Ask about sneezing, itchy eyes and exposure to dust, pollen or other triggers."},
+{name:"Gastroenteritis-like illness",terms:["vomiting","diarrhea","stomach pain","nausea","fever"],need:2,more:"Ask about dehydration, recent food/water exposure and how long symptoms have lasted."},
+{name:"Urinary-tract-infection-like symptoms",terms:["burning urination","frequent urination","back pain","fever"],need:2,more:"Ask about lower abdominal pain, fever and back/flank pain; medical evaluation may be needed."},
+{name:"Migraine-like headache",terms:["headache","nausea","dizziness"],need:2,more:"Ask whether light or sound makes the headache worse and whether this is a new or unusually severe headache."},
+{name:"Conjunctivitis-like symptoms",terms:["eye redness","eye itching"],need:2,more:"Ask about discharge, eye pain and vision changes; significant eye pain or vision change needs prompt medical assessment."},
+{name:"Possible anemia-related symptoms",terms:["tiredness","dizziness","pale skin","shortness of breath"],need:2,more:"Ask about diet, bleeding and how long symptoms have been present. A blood test may be needed."},
+{name:"Possible diabetes-related symptoms",terms:["increased thirst","frequent urination","tiredness","weight change"],need:2,more:"Ask about duration and family history; blood-glucose testing is needed rather than symptom-based diagnosis."},
+{name:"Possible acid-reflux symptoms",terms:["heartburn","stomach pain","nausea"],need:2,more:"Ask whether symptoms follow meals or lying down. Chest pain should not be assumed to be reflux."}
+];
+symptoms.forEach((s,i)=>{let b=document.createElement("button");b.className="chip";b.textContent=s;b.onclick=()=>{b.classList.toggle("active")};document.getElementById("chips").appendChild(b)});
+
+function show(id){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");scrollTo(0,0)}
+function analyze(){
+ let text=document.getElementById("freeText").value.toLowerCase();
+ let selected=[...document.querySelectorAll(".chip.active")].map(x=>x.textContent);
+ let all=new Set(selected);
+ symptoms.forEach(s=>{if(text.includes(s))all.add(s)});
+ const urgent=["severe shortness of breath","chest pain","confusion","fainting","seizure"];
+ let urgentFound=urgent.filter(x=>text.includes(x));
+ let scores=conditions.map(c=>({...c,score:c.terms.filter(t=>all.has(t)).length})).filter(c=>c.score>=c.need).sort((a,b)=>b.score-a.score).slice(0,4);
+ let r=document.getElementById("result");
+ if(urgentFound.length){
+   r.innerHTML='<div class="result urgent"><h3>🚨 Urgent medical attention may be needed</h3><p>Some symptoms you entered can be serious. Please seek urgent medical care rather than relying on an online symptom checker.</p></div>';
+   return;
+ }
+ if(!scores.length){
+   r.innerHTML='<div class="result"><h3>Need more information</h3><p>I cannot find a strong match from the symptoms entered. <b>Please tell more symptoms</b>, including when they started, how severe they are, and anything else you have noticed.</p><button class="btn secondary" onclick="show(\\'doctors\\')">Find a doctor</button></div>';
+   return;
+ }
+ r.innerHTML='<div class="result"><h3>Possible health information matches</h3><p>These are <b>not diagnoses</b>. Several illnesses can share the same symptoms, so a clinician may need an examination or tests.</p>'+
+ scores.map(c=>`<div class="result"><h3>${c.name}</h3><p>Matching symptoms: ${c.terms.filter(t=>all.has(t)).join(", ")}.</p><p><b>Ask next:</b> ${c.more}</p></div>`).join("")+
+ '<button class="btn secondary" onclick="show(\\'doctors\\')">Find a doctor near me</button></div>';
+}
+function findDoctors(){
+ document.getElementById("locationStatus").classList.remove("hidden");
+ document.getElementById("locationStatus").innerHTML="Opening a live map search for doctors near you...";
+ window.open("https://www.google.com/maps/search/doctors+near+me","_blank");
+}
+function findHospitals(){
+ document.getElementById("locationStatus").classList.remove("hidden");
+ document.getElementById("locationStatus").innerHTML="Opening a live map search for hospitals near you...";
+ window.open("https://www.google.com/maps/search/hospitals+near+me","_blank");
+}
+function addMed(){
+ let m=document.getElementById("med").value.trim(), t=document.getElementById("time").value;
+ if(!m||!t)return;
+ let d=document.createElement("div");d.className="result";d.innerHTML=`<b>${m}</b> — ${t} <button class="btn secondary" onclick="this.parentElement.remove()">Taken ✓</button>`;
+ document.getElementById("medList").appendChild(d);
+ document.getElementById("med").value="";
+}
+</script>
+</body>
+</html>
